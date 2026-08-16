@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaVerify Enterprise | Next-Gen AI Smart Flood Command & IoT Telemetry Grid</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151f32', 950: '#090d16' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Leaflet CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Chart.js for Advanced Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: ROLE SELECTION & LOGIN GATEWAY     -->
+    <!-- ========================================== -->
+    <div id="login-view" class="flex-1 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/40 via-slate-950 to-slate-950">
+        <div class="max-w-md w-full bg-slate-900/90 backdrop-blur-2xl p-8 md:p-10 rounded-[2.55rem] shadow-2xl border border-slate-800/95 space-y-7 relative overflow-hidden">
+            <!-- Decorative Glow Backgrounds -->
+            <div class="absolute -right-16 -top-16 w-48 h-48 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-48 h-48 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="text-center space-y-3 relative z-10">
+                <div class="inline-flex bg-gradient-to-tr from-blue-600 via-blue-500 to-indigo-500 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/25 ring-1 ring-white/20">
+                    <i class="fa-solid fa-water text-3xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white">AquaVerify</h1>
+                    <span class="text-[11px] font-bold uppercase tracking-widest bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Enterprise Intelligence Platform</span>
+                </div>
+                <p class="text-xs text-slate-400 max-w-[280px] mx-auto leading-relaxed">Secure Multi-Tenant Gateway for Civil Infrastructure & Disaster Telemetry</p>
+            </div>
+
+            <!-- Role Switch Tabs -->
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800/90 relative z-10 shadow-inner">
+                <button type="button" onclick="switchLoginRole('citizen')" id="tab-citizen" class="py-3 text-xs font-bold rounded-xl transition-all duration-300 bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Citizen Portal</span>
+                </button>
+                <button type="button" onclick="switchLoginRole('municipal')" id="tab-municipal" class="py-3 text-xs font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-white flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Control Room</span>
+                </button>
+            </div>
+
+            <!-- Citizen Login Form -->
+            <form id="form-citizen" onsubmit="handleCitizenLogin(event)" class="space-y-5 relative z-10">
+                <div class="bg-blue-950/40 border border-blue-900/50 p-4 rounded-2xl text-xs space-y-2 text-blue-200/90 backdrop-blur-sm">
+                    <div class="flex items-center space-x-2 text-blue-400 font-bold uppercase tracking-wider text-[11px]">
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
+                        <span>Public Authentication Node</span>
+                    </div>
+                    <p class="leading-relaxed">Access real-time hazard mapping, voice-to-text reporting, and live municipal resolution timelines instantly.</p>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-600/30 transition-all duration-300 flex items-center justify-center space-x-2.5 text-sm group">
+                    <span>Enter Citizen Dashboard</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </form>
+
+            <!-- Municipal Login Form -->
+            <form id="form-municipal" onsubmit="handleMunicipalLogin(event)" class="space-y-5 relative z-10 hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center">
+                            <i class="fa-solid fa-id-badge mr-1.5 text-rose-500"></i> Official ID / Username
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </span>
+                            <input type="text" id="muni-user" required placeholder="admin" class="w-full text-sm bg-slate-950 text-white placeholder-slate-600 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition shadow-inner">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center">
+                            <i class="fa-solid fa-key mr-1.5 text-rose-500"></i> Encrypted Password
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="muni-pass" required placeholder="admin" class="w-full text-sm bg-slate-950 text-white placeholder-slate-600 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition shadow-inner">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                        <span>Demo Credentials:</span>
+                        <span class="font-mono text-slate-300"><code class="bg-slate-900 px-2 py-0.5 rounded text-rose-400">admin</code> / <code class="bg-slate-900 px-2 py-0.5 rounded text-rose-400">admin</code></span>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-rose-600/30 transition-all duration-300 flex items-center justify-center space-x-2.5 text-sm group">
+                    <i class="fa-solid fa-shield-keyhole group-hover:scale-110 transition-transform"></i>
+                    <span>Authenticate Control Room</span>
+                </button>
+            </form>
+
+            <div class="text-center pt-2 relative z-10 border-t border-slate-800/80">
+                <p class="text-[11px] text-slate-500 font-medium">Enterprise Telemetry Node v4.8 • 256-Bit SSL Secured</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: CITIZEN REPORTING DASHBOARD        -->
+    <!-- ========================================== -->
+    <div id="citizen-dashboard" class="hidden flex-1 flex flex-col bg-slate-900 text-slate-100">
+        <!-- Header -->
+        <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2.5 rounded-xl shadow-md"><i class="fa-solid fa-water text-lg text-white"></i></div>
+                    <div>
+                        <h1 class="text-base md:text-lg font-bold tracking-tight text-white">AquaVerify Citizen Portal</h1>
+                        <p class="text-[11px] text-slate-400">Validated Civic Resilience & Rewards</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <!-- Gamification Points Badge -->
+                    <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center space-x-2 shadow-inner">
+                        <i class="fa-solid fa-award text-amber-400"></i>
+                        <span class="text-xs font-bold text-white"><span id="citizen-points">350</span> Pts</span>
+                    </div>
+
+                    <!-- Language Selector -->
+                    <select id="languageSelect" onchange="changeLanguage(this.value)" class="bg-slate-900 text-xs text-slate-200 border border-slate-800 rounded-xl px-3 py-2 focus:outline-none">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी (Hindi)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                    </select>
+
+                    <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs md:text-sm font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-camera"></i>
+                        <span data-i18n="snapWaterlog">Snap Live Waterlog</span>
+                    </button>
+                    <button onclick="logoutToGateway()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold p-2.5 rounded-xl transition border border-slate-800" title="Exit">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+            <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-3xl text-white p-6 md:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="max-w-3xl relative z-10 space-y-3">
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-blue-500/20 text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-blue-500/35">Public Telemetry Node</span>
+                        <span class="bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-500/35">Rank #4 Civic Guardian</span>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-black" data-i18n="bannerTitle">AI-Driven Urban Flood Verification & Priority Routing</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed" data-i18n="bannerDesc">
+                        Capture waterlogging incidents using device cameras or Speech-to-Text Voice AI. Track automated resolution milestones in real time.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-800/80">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Zones</p>
+                    <h3 class="text-2xl font-black text-white mt-1">12</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-800/80">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mean Water Depth</p>
+                    <h3 class="text-2xl font-black text-white mt-1">1.4 ft</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-800/80">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Validated Reports</p>
+                    <h3 class="text-2xl font-black text-blue-400 mt-1" id="stat-reports-citizen">1</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-800/80">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Dispatch Units</p>
+                    <h3 class="text-2xl font-black text-emerald-400 mt-1">8 Units</h3>
+                </div>
+            </div>
+
+            <!-- Feed and Map -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-2xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-white flex items-center">
+                            <i class="fa-solid fa-list-check text-blue-400 mr-2"></i> Your Submitted Complaints & Live Timeline
+                        </h3>
+                        <span class="text-xs text-slate-400">Live Sync Active</span>
+                    </div>
+                    <div id="citizen-reports-container" class="space-y-4">
+                        <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800/80 space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center space-x-3">
+                                    <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">Priority Index: 9.4 / 10</span>
+                                    <h4 class="font-bold text-white text-base">Station Road Junction</h4>
+                                </div>
+                                <span class="text-xs text-slate-400">10 mins ago</span>
+                            </div>
+                            <p class="text-sm text-slate-300">Subway inundation restricting two-wheeler transit. High pedestrian hazard level recorded.</p>
+                            
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-3">
+                                <div class="font-bold text-slate-200 flex justify-between items-center">
+                                    <span>Live Resolution Tracker</span>
+                                    <span class="text-blue-400 bg-blue-950/60 px-2.5 py-1 rounded-lg border border-blue-900/50">WhatsApp & SMS Webhook Dispatched</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 text-center pt-1">
+                                    <div class="space-y-1.5">
+                                        <div class="w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-check"></i></div>
+                                        <span class="text-[10px] font-semibold text-slate-300 block">Submitted</span>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <div class="w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-check"></i></div>
+                                        <span class="text-[10px] font-semibold text-slate-300 block">AI Verified</span>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <div id="timeline-node-crew-1" class="w-7 h-7 mx-auto bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-truck-fast"></i></div>
+                                        <span class="text-[10px] font-semibold text-amber-400 block">Dispatched</span>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <div id="timeline-node-resolved-1" class="w-7 h-7 mx-auto bg-slate-800 text-slate-500 rounded-full flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-check"></i></div>
+                                        <span class="text-[10px] font-semibold text-slate-500 block">Resolved</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800/80">
+                        <h3 class="text-sm font-bold text-white mb-3 flex items-center">
+                            <i class="fa-solid fa-map-location-dot text-blue-400 mr-2"></i> Live GIS Map Node
+                        </h3>
+                        <div id="map-citizen" class="rounded-xl h-72 w-full z-10 border border-slate-800"></div>
+                    </div>
+
+                    <!-- Community Leaderboard Card -->
+                    <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800/80 space-y-3">
+                        <h3 class="text-sm font-bold text-white flex items-center justify-between">
+                            <span><i class="fa-solid fa-trophy text-amber-400 mr-2"></i> Civic Leaderboard</span>
+                            <span class="text-[10px] text-slate-400 uppercase">Top Reporters</span>
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <span class="font-bold text-white">1. Rajesh Kumar</span>
+                                <span class="text-amber-400 font-bold">1,420 Pts</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <span class="font-bold text-white">2. Priya Sharma</span>
+                                <span class="text-amber-400 font-bold">1,180 Pts</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800 bg-blue-950/20 border-blue-900/40">
+                                <span class="font-bold text-blue-300">4. You (Citizen Node)</span>
+                                <span class="text-blue-400 font-bold"><span id="leaderboard-pts">350</span> Pts</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: MUNICIPAL COMMAND DASHBOARD        -->
+    <!-- ========================================== -->
+    <div id="municipal-dashboard" class="hidden flex-1 flex flex-col bg-slate-950 text-slate-100">
+        <!-- Header -->
+        <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-rose-600 p-2.5 rounded-xl shadow-md"><i class="fa-solid fa-shield-halved text-lg text-white"></i></div>
+                    <div>
+                        <h1 class="text-base md:text-lg font-bold tracking-tight text-white">AquaVerify Municipal Command</h1>
+                        <p class="text-[11px] text-rose-400 font-medium">GeoJSON Polygons, Drone Telemetry & ML Forecasting</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 flex-wrap gap-2">
+                    <button onclick="togglePolygonOverlays()" id="polygonToggleBtn" class="bg-slate-900 hover:bg-slate-800 text-rose-400 text-xs font-semibold px-3 py-2 rounded-xl transition border border-slate-800 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-draw-polygon"></i>
+                        <span>GIS Polygons</span>
+                    </button>
+                    <button onclick="toggleRadarOverlay()" id="radarToggleBtn" class="bg-slate-900 hover:bg-slate-800 text-blue-400 text-xs font-semibold px-3 py-2 rounded-xl transition border border-slate-800 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                        <span>Radar Stream</span>
+                    </button>
+                    <button onclick="openDroneModal()" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-semibold px-3 py-2 rounded-xl transition border border-slate-800 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Drone Feed</span>
+                    </button>
+                    <button onclick="logoutToGateway()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold p-2 rounded-xl transition border border-slate-800" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+            <section class="bg-gradient-to-r from-rose-950 via-slate-900 to-slate-900 rounded-3xl text-white p-6 md:p-8 shadow-xl border border-rose-900/40 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                    <div>
+                        <span class="bg-rose-500/20 text-rose-300 text-xs font-bold px-3.5 py-1 rounded-full uppercase tracking-wider border border-rose-500/35">Geofenced Automated Control Room</span>
+                        <h2 class="text-2xl md:text-3xl font-black mt-3 mb-1">Priority Sorted Telemetry & IoT Sensor Grid</h2>
+                        <p class="text-slate-300 text-sm">Complaints ranked using AI Priority Scores. IoT manhole sensors provide real-time ultrasonic water level status.</p>
+                    </div>
+                    <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl text-center min-w-[160px] shadow-inner">
+                        <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending Actions</span>
+                        <span class="text-3xl font-black text-rose-400" id="pending-count">1</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Incidents</p>
+                    <h3 class="text-2xl font-black text-white mt-1" id="stat-active">13</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Crews Dispatched</p>
+                    <h3 class="text-2xl font-black text-blue-400 mt-1">8 Units</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resolved Zones</p>
+                    <h3 class="text-2xl font-black text-emerald-400 mt-1" id="stat-resolved">47</h3>
+                </div>
+                <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">AI Priority Accuracy</p>
+                    <h3 class="text-2xl font-black text-amber-400 mt-1">99.4%</h3>
+                </div>
+            </div>
+
+            <!-- IoT Smart Manhole Telemetry Banner -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-base font-bold text-white flex items-center">
+                        <i class="fa-solid fa-gauge-high text-emerald-400 mr-2"></i> IoT Smart Manhole Ultrasonic Sensors (Live Telemetry)
+                    </h3>
+                    <span class="text-xs bg-emerald-950/60 text-emerald-400 px-3 py-1 rounded-xl border border-emerald-900/50">All 24 Nodes Online</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Node #104: Station Rd</span>
+                            <span class="text-rose-400 font-bold">88% Capacity</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-rose-500 h-full rounded-full" style="width: 88%"></div>
+                        </div>
+                        <span class="text-[10px] text-rose-400 block">Warning: Near Overflow Threshold</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Node #105: Central Mall</span>
+                            <span class="text-amber-400 font-bold">62% Capacity</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-amber-500 h-full rounded-full" style="width: 62%"></div>
+                        </div>
+                        <span class="text-[10px] text-amber-400 block">Moderate Flow Rate</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Node #106: Tech Park Flyover</span>
+                            <span class="text-emerald-400 font-bold">24% Capacity</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full rounded-full" style="width: 24%"></div>
+                        </div>
+                        <span class="text-[10px] text-emerald-400 block">Normal Draining Condition</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics & Predictive ML Trend Section -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center">
+                            <i class="fa-solid fa-chart-line text-blue-400 mr-2"></i> Predictive ML Flood Forecasting (Next 24 Hours)
+                        </h3>
+                        <p class="text-xs text-slate-400">Historical rainfall + IMD weather trends predictive probability model</p>
+                    </div>
+                    <span class="bg-blue-950/60 text-blue-400 text-xs px-3 py-1 rounded-xl border border-blue-900/50">Active ML Telemetry</span>
+                </div>
+                <div class="h-64 w-full">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Feed and Map Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-2xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-white flex items-center">
+                            <i class="fa-solid fa-tower-broadcast text-rose-500 mr-2"></i> Priority Sorted Telemetry Queue
+                        </h3>
+                        <span class="text-xs text-slate-400">AI Score Sorted</span>
+                    </div>
+                    <div id="municipal-reports-container" class="space-y-4">
+                        <div id="complaint-card-1" class="bg-slate-900 p-5 rounded-2xl shadow-md border border-rose-900/40 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">Priority Index: 9.4 / 10</span>
+                                    <h4 class="font-bold text-white text-base">Station Road Junction</h4>
+                                </div>
+                                <span class="text-xs text-slate-400">10 mins ago</span>
+                            </div>
+                            <p class="text-sm text-slate-300 mb-3">Subway inundation restricting two-wheeler transit. High pedestrian hazard level recorded.</p>
+                            <div class="bg-slate-950 p-3.5 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-800">
+                                <div class="flex justify-between text-blue-400 font-semibold">
+                                    <span><i class="fa-solid fa-robot mr-1"></i> Nearest Geofenced Crew: <strong class="text-white">Unit #3 (Pumping Truck - 0.8 km)</strong></span>
+                                    <span class="text-emerald-400">Confidence: 98.4%</span>
+                                </div>
+                                <div class="text-slate-400">GPS: <strong>28.6139° N, 77.2090° E</strong> | WhatsApp & SMS Webhook Triggered</div>
+                            </div>
+                            <div class="flex flex-wrap justify-between items-center gap-3 pt-3 border-t border-slate-800">
+                                <span id="status-badge-1" class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-lg text-xs font-bold">Crew Dispatched</span>
+                                <div class="flex space-x-2">
+                                    <button onclick="autoDispatchNearest(1)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow">
+                                        <i class="fa-solid fa-bolt mr-1"></i> Auto-Dispatch & WhatsApp Alert
+                                    </button>
+                                    <button onclick="resolveIncident(1)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow">
+                                        <i class="fa-solid fa-check mr-1"></i> Mark Resolved
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800">
+                        <h3 class="text-sm font-bold text-white mb-3 flex items-center">
+                            <i class="fa-solid fa-map-location-dot text-blue-400 mr-2"></i> Municipal GIS Grid Map
+                        </h3>
+                        <div id="map-municipal" class="rounded-xl h-72 w-full z-10 border border-slate-800"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- REPORTING MODAL FOR CITIZENS               -->
+    <!-- ========================================== -->
+    <div id="reportModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-slate-100 rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-800 max-h-[90vh] overflow-y-auto space-y-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Snap Waterlogging & Speech AI Reporting</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="waterlogForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <!-- Voice AI Speech-to-Text Button -->
+                <div class="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-900/50 rounded-2xl p-4 text-center space-y-3">
+                    <label class="block text-xs font-bold text-blue-300 uppercase tracking-wider">
+                        <i class="fa-solid fa-microphone mr-1.5 animate-pulse text-rose-400"></i> AI Voice Assistant (Speech-to-Text)
+                    </label>
+                    <p class="text-[11px] text-slate-400">Click to speak your report in English or Hindi (e.g. "Station Road severe waterlogging")</p>
+                    <button type="button" id="voiceBtn" onclick="toggleVoiceRecording()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-rose-600/30 transition inline-flex items-center space-x-2">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <span id="voiceBtnText">Start Voice Recording</span>
+                    </button>
+                </div>
+
+                <div class="bg-blue-950/40 border border-blue-900/50 rounded-2xl p-4 text-center space-y-2">
+                    <label class="block text-xs font-bold text-blue-300 uppercase tracking-wider">
+                        <i class="fa-solid fa-camera mr-1.5"></i> Device Camera Capture (EXIF Telemetry)
+                    </label>
+                    <input type="file" id="locPhoto" accept="image/*" capture="camera" onchange="simulateAIProcessing(this)" class="w-full text-xs text-slate-300 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer transition">
+                </div>
+
+                <div id="aiBox" class="hidden bg-slate-950 text-white p-4 rounded-2xl text-xs space-y-2 border border-slate-800 shadow-inner">
+                    <div class="flex items-center justify-between text-blue-400 font-semibold">
+                        <span><i class="fa-solid fa-microchip animate-spin mr-1"></i> Computing AI Priority Matrix...</span>
+                        <span id="aiStatusText" class="text-amber-300">Analyzing pixels</span>
+                    </div>
+                    <div class="text-slate-300" id="aiResultDetails">Detecting depth, traffic density & risk score...</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs">
+                    <div>
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase">GPS Location</span>
+                        <span id="autoGPS" class="font-bold text-slate-200">Detecting...</span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase">Timestamp</span>
+                        <span id="autoTime" class="font-bold text-slate-200">Syncing...</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Location Identifier</label>
+                    <input type="text" id="locName" required class="w-full text-sm bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. Central Market Flyover">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Estimated Water Depth Severity</label>
+                    <select id="locDepth" class="w-full text-sm bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition">
+                        <option value="Minor (~0.5 ft)">Minor (~0.5 ft) - Ankle deep</option>
+                        <option value="Moderate (~1.0 ft)">Moderate (~1.0 ft) - Knee deep</option>
+                        <option value="Severe (1.8+ ft)">Severe (1.8+ ft) - Critical hazard</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Mobile Phone Number (For WhatsApp & SMS Webhook)</label>
+                    <input type="tel" id="locPhone" required pattern="[0-9]{10}" placeholder="9876543210" class="w-full text-sm bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Observations</label>
+                    <textarea id="locDesc" rows="2" required class="w-full text-sm bg-slate-950 text-white border border-slate-800 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition" placeholder="Describe traffic restriction or vehicle stuck..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/60 rounded-xl transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 transition">Transmit to Command Center</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- DRONE FEED MODAL FOR MUNICIPAL COMMAND     -->
+    <!-- ========================================== -->
+    <div id="droneModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-slate-100 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-800 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-base font-bold text-white flex items-center">
+                    <i class="fa-solid fa-video text-emerald-400 mr-2"></i> Live Simulated Aerial Drone Feed (Station Road Zone #3)
+                </h3>
+                <button onclick="closeDroneModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="relative bg-slate-950 rounded-2xl h-80 w-full overflow-hidden border border-slate-800 flex items-center justify-center">
+                <!-- Simulated Live Drone Video Feed Background -->
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/30 via-slate-950 to-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-3">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center animate-pulse">
+                        <i class="fa-solid fa-drone text-emerald-400 text-2xl"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="bg-rose-500/20 text-rose-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-rose-500/30">REC [4K 60FPS] 4G Telemetry Stream</span>
+                        <h4 class="text-white font-bold text-sm mt-1">Autonomous Flight Vector: Sector 3 Inundation Check</h4>
+                        <p class="text-xs text-slate-400">Real-time thermal & optical water depth scanning in progress...</p>
+                    </div>
+                </div>
+                <!-- HUD Overlays -->
+                <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-800 text-[11px] text-slate-300 font-mono">
+                    ALT: 45m | SPD: 12 m/s | BAT: 84%
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-slate-400 pt-2">
+                <span>Drone Unit: <strong class="text-white">AeroWatch-X9</strong></span>
+                <button onclick="closeDroneModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-xl transition">Close Stream</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC & ADVANCED FEATURES       -->
+    <!-- ========================================== -->
+    <script>
+        let mapCitizen, mapMunicipal;
+        let currentLat = 28.6139;
+        let currentLng = 77.2090;
+        let complaintCounter = 1;
+        let polygonActive = false;
+        let polygonLayers = [];
+        let radarActive = false;
+        let radarCircles = [];
+        let trendChartInstance = null;
+        let citizenPoints = 350;
+        let isRecording = false;
+
+        // Multi-Language Dictionary
+        const translations = {
+            en: {
+                snapWaterlog: "Snap Live Waterlog",
+                bannerTitle: "AI-Driven Urban Flood Verification & Priority Routing",
+                bannerDesc: "Capture waterlogging incidents using device cameras or Speech-to-Text Voice AI. Track automated resolution milestones in real time."
+            },
+            hi: {
+                snapWaterlog: "लाइव जलभराव फोटो लें",
+                bannerTitle: "AI-संचालित शहरी बाढ़ सत्यापन और प्राथमिकता रूटिंग",
+                bannerDesc: "सत्यापित स्थानिक मेटाडेटा या वॉइस AI के साथ जलभराव की घटनाओं को दर्ज करें। रिअल-टाइम में समाधान टप्पे ट्रैक करें।"
+            },
+            mr: {
+                snapWaterlog: "थेट पाणी साचल्याचा फोटो काढा",
+                bannerTitle: "AI-संचालित शहरी पूर पडताळणी आणि प्राधान्य रुटिंग",
+                bannerDesc: "डिव्हाइस कॅमेरा किंवा व्हॉइस AI वापरून पाणी साचण्याच्या घटना नोंदवा. रिअल-टाइममध्ये निराकरण टप्पे तपासा."
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerText = t[key];
+            });
+        }
+
+        function switchLoginRole(role) {
+            const tabCitizen = document.getElementById('tab-citizen');
+            const tabMunicipal = document.getElementById('tab-municipal');
+            const formCitizen = document.getElementById('form-citizen');
+            const formMunicipal = document.getElementById('form-municipal');
+
+            if (role === 'citizen') {
+                tabCitizen.className = "py-3 text-xs font-bold rounded-xl transition-all duration-300 bg-blue-600 text-white shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2";
+                tabMunicipal.className = "py-3 text-xs font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-white flex items-center justify-center space-x-2";
+                formCitizen.classList.remove('hidden');
+                formMunicipal.classList.add('hidden');
+            } else {
+                tabMunicipal.className = "py-3 text-xs font-bold rounded-xl transition-all duration-300 bg-rose-600 text-white shadow-lg shadow-rose-600/30 flex items-center justify-center space-x-2";
+                tabCitizen.className = "py-3 text-xs font-bold rounded-xl transition-all duration-300 text-slate-400 hover:text-white flex items-center justify-center space-x-2";
+                formMunicipal.classList.remove('hidden');
+                formCitizen.classList.add('hidden');
+            }
+        }
+
+        function handleCitizenLogin(event) {
+            event.preventDefault();
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('citizen-dashboard').classList.remove('hidden');
+            initCitizenMap();
+        }
+
+        function handleMunicipalLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('muni-user').value;
+            const pass = document.getElementById('muni-pass').value;
+
+            if (user === 'admin' && pass === 'admin') {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('municipal-dashboard').classList.remove('hidden');
+                initMunicipalMap();
+                initChart();
+            } else {
+                alert("Invalid Credentials! Use admin / admin");
+            }
+        }
+
+        function logoutToGateway() {
+            document.getElementById('citizen-dashboard').classList.add('hidden');
+            document.getElementById('municipal-dashboard').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+        }
+
+        function initCitizenMap() {
+            if (!mapCitizen) {
+                setTimeout(() => {
+                    mapCitizen = L.map('map-citizen').setView([28.6139, 77.2090], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapCitizen);
+                    L.marker([28.6139, 77.2090]).addTo(mapCitizen).bindPopup("<b>Station Road Junction</b><br>Priority: 9.4 / 10");
+                }, 200);
+            }
+        }
+
+        function initMunicipalMap() {
+            if (!mapMunicipal) {
+                setTimeout(() => {
+                    mapMunicipal = L.map('map-municipal').setView([28.6139, 77.2090], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapMunicipal);
+                    L.marker([28.6139, 77.2090]).addTo(mapMunicipal).bindPopup("<b>Station Road Junction</b><br>Priority: 9.4 / 10");
+                    
+                    var crewIcon = L.divIcon({
+                        className: 'custom-crew',
+                        html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(59,130,246,0.8);"></div>',
+                        iconSize: [14, 14]
+                    });
+                    L.marker([28.6200, 77.2150], {icon: crewIcon}).addTo(mapMunicipal).bindPopup("<b>Municipal Pumping Unit #3</b> (0.8 km away)");
+                }, 200);
+            }
+        }
+
+        function initChart() {
+            if (trendChartInstance) return;
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00 (Peak)', '16:00', '20:00', '23:59 (Forecast)'],
+                    datasets: [{
+                        label: 'Predicted Flood Probability Index (%)',
+                        data: [25, 30, 65, 92, 85, 45, 35],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'sans-serif', size: 11 } } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(51, 65, 85, 0.2)' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { color: 'rgba(51, 65, 85, 0.2)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        function openModal() {
+            document.getElementById('reportModal').classList.remove('hidden');
+            const timeField = document.getElementById('autoTime');
+            const gpsField = document.getElementById('autoGPS');
+            const now = new Date();
+            timeField.innerText = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        currentLat = pos.coords.latitude;
+                        currentLng = pos.coords.longitude;
+                        gpsField.innerText = `${currentLat.toFixed(4)}° N, ${currentLng.toFixed(4)}° E`;
+                    },
+                    () => { gpsField.innerText = "28.6139° N, 77.2090° E"; }
+                );
+            } else {
+                gpsField.innerText = "28.6139° N, 77.2090° E";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+            document.getElementById('aiBox').classList.add('hidden');
+            document.getElementById('waterlogForm').reset();
+            if (isRecording) {
+                isRecording = false;
+                document.getElementById('voiceBtnText').innerText = "Start Voice Recording";
+            }
+        }
+
+        function openDroneModal() {
+            document.getElementById('droneModal').classList.remove('hidden');
+        }
+
+        function closeDroneModal() {
+            document.getElementById('droneModal').classList.add('hidden');
+        }
+
+        // Voice AI Simulation (Speech-to-Text)
+        function toggleVoiceRecording() {
+            const btnText = document.getElementById('voiceBtnText');
+            const locNameInput = document.getElementById('locName');
+            const locDescInput = document.getElementById('locDesc');
+            const aiBox = document.getElementById('aiBox');
+            const statusText = document.getElementById('aiStatusText');
+            const detailsText = document.getElementById('aiResultDetails');
+
+            isRecording = !isRecording;
+            if (isRecording) {
+                btnText.innerText = "Listening... Speak now";
+                // Simulate voice recognition after 3 seconds
+                setTimeout(() => {
+                    if (isRecording) {
+                        locNameInput.value = "Central Station Subway";
+                        locDescInput.value = "Severe waterlogging reported via voice AI assistant. Knee deep water.";
+                        btnText.innerText = "Voice Captured Successfully!";
+                        aiBox.classList.remove('hidden');
+                        statusText.innerText = "Priority Score: 9.5 / 10 (Critical)";
+                        statusText.className = "text-emerald-400 font-bold";
+                        detailsText.innerHTML = "✓ Voice parsed successfully<br>✓ Geofenced to Station Subway sector";
+                        isRecording = false;
+                    }
+                }, 3000);
+            } else {
+                btnText.innerText = "Start Voice Recording";
+            }
+        }
+
+        function simulateAIProcessing(input) {
+            if (input.files && input.files[0]) {
+                const aiBox = document.getElementById('aiBox');
+                const statusText = document.getElementById('aiStatusText');
+                const detailsText = document.getElementById('aiResultDetails');
+                aiBox.classList.remove('hidden');
+                statusText.innerText = "Computing AI Priority Matrix...";
+                setTimeout(() => {
+                    statusText.innerText = "Priority Score: 9.2 / 10 (Critical)";
+                    statusText.className = "text-emerald-400 font-bold";
+                    detailsText.innerHTML = "✓ Water depth verified (~1.6 ft)<br>✓ Nearest pumping unit geofenced: Unit #3";
+                }, 1000);
+            }
+        }
+
+        // GIS Polygon Inundation Mapping (GeoJSON Boundaries simulation)
+        function togglePolygonOverlays() {
+            if (!mapMunicipal) return;
+            polygonActive = !polygonActive;
+            const btn = document.getElementById('polygonToggleBtn');
+
+            if (polygonActive) {
+                btn.className = "bg-rose-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition border border-rose-500 flex items-center space-x-1.5 shadow-lg";
+                // Simulated GeoJSON Ward Polygons
+                const wardPolygonCoords = [
+                    [
+                        [28.6100, 77.2000],
+                        [28.6250, 77.2050],
+                        [28.6200, 77.2200],
+                        [28.6050, 77.2150]
+                    ],
+                    [
+                        [28.6300, 77.2250],
+                        [28.6450, 77.2300],
+                        [28.6400, 77.2450],
+                        [28.6250, 77.2400]
+                    ]
+                ];
+                wardPolygonCoords.forEach((coords, idx) => {
+                    const polygon = L.polygon(coords, {
+                        color: idx === 0 ? '#f43f5e' : '#f59e0b',
+                        fillColor: idx === 0 ? '#f43f5e' : '#f59e0b',
+                        fillOpacity: 0.4,
+                        weight: 2
+                    }).addTo(mapMunicipal).bindPopup(`<b>Ward Zone #${idx+1} Inundation Boundary</b><br>Risk Level: ${idx === 0 ? 'Severe (Critical)' : 'Moderate'}`);
+                    polygonLayers.push(polygon);
+                });
+            } else {
+                btn.className = "bg-slate-900 hover:bg-slate-800 text-rose-400 text-xs font-semibold px-3 py-2 rounded-xl transition border border-slate-800 flex items-center space-x-1.5";
+                polygonLayers.forEach(p => mapMunicipal.removeLayer(p));
+                polygonLayers = [];
+            }
+        }
+
+        function toggleRadarOverlay() {
+            if (!mapMunicipal) return;
+            radarActive = !radarActive;
+            const btn = document.getElementById('radarToggleBtn');
+
+            if (radarActive) {
+                btn.className = "bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition border border-blue-500 flex items-center space-x-1.5 shadow-lg";
+                const radarPoints = [
+                    [28.6400, 77.2300, 12.0],
+                    [28.5900, 77.1800, 10.5]
+                ];
+                radarPoints.forEach(pt => {
+                    const circle = L.circle([pt[0], pt[1]], {
+                        color: '#3b82f6',
+                        fillColor: '#60a5fa',
+                        fillOpacity: 0.4,
+                        radius: pt[2] * 120
+                    }).addTo(mapMunicipal).bindPopup(`<b>Live Weather Radar Stream</b><br>Precipitation Intensity: Heavy Rain (18 mm/hr)`);
+                    radarCircles.push(circle);
+                });
+            } else {
+                btn.className = "bg-slate-900 hover:bg-slate-800 text-blue-400 text-xs font-semibold px-3 py-2 rounded-xl transition border border-slate-800 flex items-center space-x-1.5";
+                radarCircles.forEach(c => mapMunicipal.removeLayer(c));
+                radarCircles = [];
+            }
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const location = document.getElementById('locName').value;
+            const depth = document.getElementById('locDepth').value;
+            const desc = document.getElementById('locDesc').value;
+            const phone = document.getElementById('locPhone').value;
+            const timeStr = document.getElementById('autoTime').innerText;
+            const gpsStr = document.getElementById('autoGPS').innerText;
+
+            complaintCounter++;
+            const id = complaintCounter;
+            const priorityScore = (Math.random() * (9.8 - 7.5) + 7.5).toFixed(1);
+
+            // Add Civic Points & Update UI
+            citizenPoints += 50;
+            document.getElementById('citizen-points').innerText = citizenPoints;
+            document.getElementById('leaderboard-pts').innerText = citizenPoints;
+
+            // Update Citizen Feed with Timeline
+            const citizenContainer = document.getElementById('citizen-reports-container');
+            const citizenCard = document.createElement('div');
+            citizenCard.className = 'bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800 space-y-4';
+            citizenCard.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">Priority Index: ${priorityScore} / 10</span>
+                        <h4 class="font-bold text-white text-base">${location}</h4>
+                    </div>
+                    <span class="text-xs text-slate-400">${timeStr}</span>
+                </div>
+                <p class="text-sm text-slate-300">${desc}</p>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-3">
+                    <div class="font-bold text-slate-200 flex justify-between items-center">
+                        <span>Live Resolution Tracker</span>
+                        <span class="text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-900/50">WhatsApp & SMS Webhook Dispatched (+50 Pts Earned!)</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2 text-center pt-1">
+                        <div class="space-y-1.5">
+                            <div class="w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-check"></i></div>
+                            <span class="text-[10px] font-semibold text-slate-300 block">Submitted</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-check"></i></div>
+                            <span class="text-[10px] font-semibold text-slate-300 block">AI Verified</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div id="timeline-node-crew-${id}" class="w-7 h-7 mx-auto bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md"><i class="fa-solid fa-truck-fast"></i></div>
+                            <span class="text-[10px] font-semibold text-amber-400 block">Dispatched</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div id="timeline-node-resolved-${id}" class="w-7 h-7 mx-auto bg-slate-800 text-slate-500 rounded-full flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-check"></i></div>
+                            <span class="text-[10px] font-semibold text-slate-500 block">Resolved</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            citizenContainer.prepend(citizenCard);
+            let repCount = document.getElementById('stat-reports-citizen');
+            repCount.innerText = parseInt(repCount.innerText) + 1;
+
+            // Update Municipal Feed
+            const muniContainer = document.getElementById('municipal-reports-container');
+            const muniCard = document.createElement('div');
+            muniCard.id = `complaint-card-${id}`;
+            muniCard.className = 'bg-slate-900 p-5 rounded-2xl shadow-md border border-rose-900/40 relative overflow-hidden';
+            muniCard.innerHTML = `
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-1 rounded-lg">Priority Index: ${priorityScore} / 10</span>
+                        <h4 class="font-bold text-white text-base">${location}</h4>
+                    </div>
+                    <span class="text-xs text-slate-400">${timeStr}</span>
+                </div>
+                <p class="text-sm text-slate-300 mb-3">${desc}</p>
+                <div class="bg-slate-950 p-3.5 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-800">
+                    <div class="flex justify-between text-blue-400 font-semibold">
+                        <span><i class="fa-solid fa-robot mr-1"></i> Nearest Geofenced Crew: <strong class="text-white">Unit #7 (Pumping Truck - 0.4 km)</strong></span>
+                        <span class="text-emerald-400">Confidence: 99.1%</span>
+                    </div>
+                    <div class="text-slate-400">GPS: <strong>${gpsStr}</strong> | Citizen Phone: +91 ${phone} (Webhook Ready)</div>
+                </div>
+                <div class="flex flex-wrap justify-between items-center gap-3 pt-3 border-t border-slate-800">
+                    <span id="status-badge-${id}" class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1 rounded-lg text-xs font-bold">Action Pending</span>
+                    <div class="flex space-x-2">
+                        <button onclick="autoDispatchNearest(${id})" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow">
+                            <i class="fa-solid fa-bolt mr-1"></i> Auto-Dispatch & WhatsApp Alert
+                        </button>
+                        <button onclick="resolveIncident(${id})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow">
+                            <i class="fa-solid fa-check mr-1"></i> Mark Resolved
+                        </button>
+                    </div>
+                </div>
+            `;
+            muniContainer.prepend(muniCard);
+
+            let pendingCount = document.getElementById('pending-count');
+            pendingCount.innerText = parseInt(pendingCount.innerText) + 1;
+            let activeStat = document.getElementById('stat-active');
+            activeStat.innerText = parseInt(activeStat.innerText) + 1;
+
+            if (mapMunicipal) {
+                L.marker([currentLat, currentLng]).addTo(mapMunicipal).bindPopup(`<b>${location}</b><br>Priority: ${priorityScore}`);
+            }
+
+            closeModal();
+            alert("Report successfully transmitted! +50 Civic Points added to your account and simulated WhatsApp/SMS webhook dispatched.");
+        }
+
+        function autoDispatchNearest(id) {
+            const badge = document.getElementById(`status-badge-${id}`);
+            badge.className = "bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-lg text-xs font-bold";
+            badge.innerHTML = `Nearest Crew Auto-Dispatched & WhatsApp Alert Sent`;
+
+            const timelineCrew = document.getElementById(`timeline-node-crew-${id}`);
+            if (timelineCrew) {
+                timelineCrew.className = "w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md";
+            }
+
+            let pendingCount = document.getElementById('pending-count');
+            let val = parseInt(pendingCount.innerText);
+            if (val > 0) pendingCount.innerText = val - 1;
+        }
+
+        function resolveIncident(id) {
+            const card = document.getElementById(`complaint-card-${id}`);
+            if (card) {
+                card.style.opacity = '0.6';
+                const badge = document.getElementById(`status-badge-${id}`);
+                badge.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-lg text-xs font-bold";
+                badge.innerHTML = `Zone Drained & Resolved`;
+
+                const timelineResolved = document.getElementById(`timeline-node-resolved-${id}`);
+                if (timelineResolved) {
+                    timelineResolved.className = "w-7 h-7 mx-auto bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md";
+                }
+
+                let activeStat = document.getElementById('stat-active');
+                let activeVal = parseInt(activeStat.innerText);
+                if (activeVal > 0) activeStat.innerText = activeVal - 1;
+                let resolvedStat = document.getElementById('stat-resolved');
+                resolvedStat.innerText = parseInt(resolvedStat.innerText) + 1;
+            }
+        }
+    </script>
+</body>
+</html>
